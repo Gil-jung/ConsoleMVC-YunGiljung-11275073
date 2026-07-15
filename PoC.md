@@ -54,7 +54,11 @@ MVC/
 
 ## 4. 시나리오 검증 (`tests/test_order_scenario.py`)
 
-pytest 13개 시나리오로 각 계층의 기능을 교차 검증했다.
+pytest 13개 통합 시나리오로 각 계층의 기능을 교차 검증했다. 이와 별개로 계층별
+단위 테스트(`test_product.py`, `test_order.py`, `test_order_controller.py`,
+`test_order_view.py`)를 TDD(Red→Green) 방식으로 추가해 총 34개 테스트가 통과한다.
+TDD 진행 과정과 각 RED 단계에서 확인한 실패 내용은 [`docs/PLAN.md`](docs/PLAN.md)의
+"TDD 진행 이력" 절에 정리했다.
 
 | # | 시나리오 | 검증 계층 |
 |---|---|---|

@@ -76,6 +76,30 @@
 - 이 PoC가 콘솔(CLI) 애플리케이션이라는 아키텍처 성격을 명시(웹/GUI 프레임워크 없음).
 - "구조만 있고 동작하지 않는 스켈레톤"이 아니라 end-to-end로 검증됐다는 결론으로 마무리.
 
+## TDD 진행 이력 (Red → Green)
+
+Step 1~4는 위 설계가 끝난 상태의 코드를 기준으로, 계층별 규칙을 각각 잠깐 제거해
+테스트가 실패(RED)함을 먼저 확인한 뒤 규칙을 복구해 통과(GREEN)시키는 방식으로
+재검증했다. GREEN에 도달할 때마다 해당 테스트 파일과 구현 diff를 커밋·푸시했다.
+
+| 커밋 | 계층 | RED 유발 방법 | 확인한 실패 |
+|---|---|---|---|
+| `TDD: Product 모델 단위 테스트 추가` | Model (`product.py`) | `__post_init__` 검증 제거 | `ValueError` 미발생 |
+| `TDD: Order 상태 전이 규칙 테스트 추가` | Model (`order.py`) | `change_status` 검증 로직 제거 | 잘못된 전이/무상품 결제/종결 상태 이후 전이가 `OrderError` 없이 통과 |
+| `TDD: OrderController 단위 테스트 추가` | Controller | `_get_order`의 None 체크 제거 | `OrderError` 대신 `AttributeError` 발생 |
+| `TDD: OrderView 단위 테스트 추가` | View | `render_error`의 `[오류]` 접두어 제거 | 포맷 불일치로 assert 실패 |
+
+각 단계는 해당 계층 테스트만 대상으로 실행(`pytest tests/test_xxx.py`)해 RED/GREEN을
+빠르게 확인했고, 마지막 Step 5에서 `tests/` 전체(신규 단위 테스트 + 기존
+`test_order_scenario.py` 통합 테스트, 총 34개)와 `main.py` 데모를 함께 재실행해
+회귀가 없음을 확인했다.
+
+```
+$ python -m pytest tests/ -v
+...
+============================= 34 passed in 0.04s ==============================
+```
+
 ## 향후 확장 시 고려사항
 
 - 결제 연동, 재고 차감, DB 영속화 등은 Controller 아래에 별도 Service/Repository 계층을 추가해서 확장.
